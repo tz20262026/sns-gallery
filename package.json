@@ -1,0 +1,22 @@
+{
+  "name": "sns-gallery",
+  "version": "2.0.0",
+  "description": "Multilingual stock photo gallery with subscription management",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "generate": "node generate-images.js",
+    "label": "python label_images_multilingual.py"
+  },
+  "dependencies": {
+    "@google-cloud/aiplatform": "^3.27.0",
+    "express": "^4.22.1",
+    "stripe": "^14.25.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1018.0"
+  }
+}

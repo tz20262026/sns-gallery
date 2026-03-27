@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Use / 利用規約 – SNS Gallery</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a; --surf: #141414; --border: #282828;
+  --accent: #e8c97a; --text: #f0f0f0; --muted: #888;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.7; padding: 40px 20px;
+}
+.container { max-width: 860px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 40px; }
+header h1 { font-size: 26px; color: var(--accent); margin-bottom: 8px; }
+header p { color: var(--muted); font-size: 13px; }
+
+.lang-switcher {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  justify-content: center; margin-bottom: 36px;
+}
+.lang-btn {
+  background: var(--surf); border: 1px solid var(--border);
+  color: var(--muted); padding: 4px 12px; border-radius: 14px;
+  font-size: 11px; cursor: pointer; transition: all .15s;
+}
+.lang-btn:hover, .lang-btn.active {
+  border-color: var(--accent); color: var(--accent);
+}
+
+.terms-section { display: none; }
+.terms-section.active { display: block; }
+
+.terms-card {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px; margin-bottom: 20px;
+}
+h2 { color: var(--accent); font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+h3 { color: var(--text); font-size: 15px; margin: 20px 0 8px; }
+p, li { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+ul { padding-left: 20px; }
+li { margin-bottom: 4px; }
+.badge {
+  display: inline-block; background: rgba(232,201,122,.15);
+  color: var(--accent); font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 8px; margin-right: 6px;
+}
+.back-link {
+  display: inline-block; margin-bottom: 24px;
+  color: var(--muted); text-decoration: none; font-size: 13px;
+}
+.back-link:hover { color: var(--accent); }
+.updated { color: var(--muted); font-size: 12px; margin-top: 20px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/gallery.html" class="back-link">← ギャラリーに戻る</a>
+
+  <header>
+    <h1>📜 Terms of Use / 利用規約</h1>
+    <p>SNS Gallery – Multilingual Stock Photo Service</p>
+    <p style="margin-top:6px;font-size:12px;">Commercial Use Permitted &nbsp;|&nbsp; Redistribution Prohibited &nbsp;|&nbsp; Adobe Stock Standard License Compatible</p>
+  </header>
+
+  <div class="lang-switcher" id="lang-switcher">
+    <button class="lang-btn active" data-lang="en">English</button>
+    <button class="lang-btn" data-lang="ja">日本語</button>
+    <button class="lang-btn" data-lang="zh">中文</button>
+    <button class="lang-btn" data-lang="ko">한국어</button>
+    <button class="lang-btn" data-lang="fr">Français</button>
+    <button class="lang-btn" data-lang="de">Deutsch</button>
+    <button class="lang-btn" data-lang="es">Español</button>
+    <button class="lang-btn" data-lang="pt">Português</button>
+    <button class="lang-btn" data-lang="ar">العربية</button>
+    <button class="lang-btn" data-lang="other">Others / その他</button>
+  </div>
+
+  <!-- ── English ─────────────────────────────────────────────────────── -->
+  <div class="terms-section active" id="terms-en">
+    <div class="terms-card">
+      <h2>📋 Terms of Use</h2>
+
+      <h3>1. License Overview</h3>
+      <p>SNS Gallery grants you a <strong>non-exclusive, non-transferable license</strong> to use the images (photos, illustrations, and other visual content) available on this service under the terms described below. This license is compatible with the Adobe Stock Standard License.</p>
+
+      <h3>2. Permitted Uses <span class="badge">✓ Allowed</span></h3>
+      <ul>
+        <li>Use in commercial projects, advertising, marketing materials, and websites</li>
+        <li>Print publications (magazines, books, brochures, posters)</li>
+        <li>Digital media including social networks, presentations, apps, and video</li>
+        <li>Editorial use (news articles, blogs, educational materials)</li>
+        <li>Modification, cropping, and adaptation for your projects</li>
+      </ul>
+
+      <h3>3. Prohibited Uses <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ Not Allowed</span></h3>
+      <ul>
+        <li><strong>Redistribution or resale</strong> of original or modified images as standalone files</li>
+        <li>Using images in products intended to compete with this service (stock image libraries)</li>
+        <li>Pornographic, defamatory, or illegal content</li>
+        <li>Trademark or logo creation using images containing identifiable people or property</li>
+        <li>Sharing login credentials or download links with third parties</li>
+        <li>Automated bulk downloading via scripts or bots</li>
+      </ul>
+
+      <h3>4. Subscription & Downloads</h3>
+      <ul>
+        <li><strong>Free tier:</strong> 30-day trial period with up to 10 total downloads</li>
+        <li><strong>Premium:</strong> Unlimited downloads for ¥1,000/month (or equivalent local currency)</li>
+        <li>Subscriptions are billed monthly and can be cancelled at any time</li>
+        <li>Downloaded files may be retained after subscription cancellation under the terms of this license</li>
+      </ul>
+
+      <h3>5. Attribution</h3>
+      <p>Attribution is <strong>not required</strong> for most uses. However, we appreciate credit such as: <em>"Photo from SNS Gallery"</em> where practical.</p>
+
+      <h3>6. Warranty & Liability</h3>
+      <p>All images are AI-generated and cleared for commercial use. We make no warranty that images are free of third-party intellectual property claims arising from model likeness or real locations. Use is at your own risk. Our liability is limited to the subscription fees paid in the preceding 3 months.</p>
+
+      <h3>7. Governing Law</h3>
+      <p>These terms are governed by the laws of Japan. Any disputes shall be resolved in the Tokyo District Court.</p>
+
+      <div class="updated">Last updated: March 14, 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Japanese ─────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-ja">
+    <div class="terms-card">
+      <h2>📋 利用規約</h2>
+
+      <h3>1. ライセンスの概要</h3>
+      <p>SNS Galleryは、本サービス上の画像（写真、イラストなどの視覚コンテンツ）について、以下の条件のもとで<strong>非独占的・譲渡不可能なライセンス</strong>を付与します。本ライセンスはAdobe Stockスタンダードライセンスと互換性があります。</p>
+
+      <h3>2. 許可される使用 <span class="badge">✓ 可能</span></h3>
+      <ul>
+        <li>商業プロジェクト、広告、マーケティング素材、ウェブサイトへの使用</li>
+        <li>印刷物（雑誌、書籍、パンフレット、ポスター）</li>
+        <li>SNS、プレゼンテーション、アプリ、動画を含むデジタルメディア</li>
+        <li>報道・教育目的での使用</li>
+        <li>プロジェクトに合わせた修正・トリミング・加工</li>
+      </ul>
+
+      <h3>3. 禁止される使用 <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ 不可</span></h3>
+      <ul>
+        <li>元の画像または加工した画像の<strong>単体ファイルとしての再配布・転売</strong></li>
+        <li>本サービスと競合する商品（ストック画像ライブラリ等）での使用</li>
+        <li>ポルノ、名誉毀損、違法コンテンツへの使用</li>
+        <li>識別可能な人物・財産が映る画像を用いた商標・ロゴの作成</li>
+        <li>第三者へのログイン情報・ダウンロードリンクの共有</li>
+        <li>スクリプト・ボットによる自動大量ダウンロード</li>
+      </ul>
+
+      <h3>4. サブスクリプションとダウンロード</h3>
+      <ul>
+        <li><strong>無料プラン：</strong>30日間のトライアル期間中、合計10枚までダウンロード可能</li>
+        <li><strong>プレミアム：</strong>月額1,000円（または各国現地通貨相当額）で無制限ダウンロード</li>
+        <li>サブスクリプションは月次請求で、いつでも解約可能</li>
+        <li>解約後もダウンロード済みファイルは本規約の条件のもとで引き続き使用可能</li>
+      </ul>
+
+      <h3>5. クレジット表記</h3>
+      <p>ほとんどの使用においてクレジット表記は<strong>不要</strong>です。ただし、可能な場合は <em>「SNS Galleryより」</em> などの表記を歓迎します。</p>
+
+      <h3>6. 保証と責任の制限</h3>
+      <p>すべての画像はAI生成であり、商業利用を想定してクリアされています。モデルの肖像権や実在の場所に起因する第三者の知的財産権の申し立てについて、当社は一切保証しません。使用はお客様の責任において行ってください。当社の責任は過去3ヶ月間に支払われたサブスクリプション料金を上限とします。</p>
+
+      <h3>7. 準拠法</h3>
+      <p>本規約は日本法に準拠します。紛争が生じた場合は、東京地方裁判所を専属的合意管轄とします。</p>
+
+      <div class="updated">最終更新日：2026年3月14日</div>
+    </div>
+  </div>
+
+  <!-- ── Chinese ─────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-zh">
+    <div class="terms-card">
+      <h2>📋 使用条款</h2>
+      <h3>1. 许可证概述</h3>
+      <p>SNS Gallery 授予您对本服务上的图像（照片、插图等视觉内容）的<strong>非独占、不可转让的许可</strong>。本许可证与 Adobe Stock 标准许可证兼容。</p>
+      <h3>2. 允许的使用 <span class="badge">✓ 允许</span></h3>
+      <ul>
+        <li>商业项目、广告、营销材料和网站</li>
+        <li>印刷出版物（杂志、书籍、手册、海报）</li>
+        <li>社交媒体、演示文稿、应用程序和视频等数字媒体</li>
+        <li>新闻报道和教育用途</li>
+        <li>根据项目需要进行修改、裁剪和改编</li>
+      </ul>
+      <h3>3. 禁止的使用 <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ 禁止</span></h3>
+      <ul>
+        <li><strong>以独立文件形式重新分发或转售</strong>原始或修改后的图像</li>
+        <li>在与本服务竞争的产品（图库服务）中使用</li>
+        <li>色情、诽谤或违法内容</li>
+        <li>使用包含可识别人物或财产的图像创建商标或徽标</li>
+        <li>与第三方共享登录凭据或下载链接</li>
+      </ul>
+      <h3>4. 订阅与下载</h3>
+      <ul>
+        <li><strong>免费套餐：</strong>30天试用期内最多10次下载</li>
+        <li><strong>高级版：</strong>每月¥1,000（或等值当地货币）无限下载</li>
+      </ul>
+      <div class="updated">最后更新：2026年3月14日</div>
+    </div>
+  </div>
+
+  <!-- ── Korean ──────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-ko">
+    <div class="terms-card">
+      <h2>📋 이용약관</h2>
+      <h3>1. 라이선스 개요</h3>
+      <p>SNS Gallery는 본 서비스의 이미지에 대해 <strong>비독점적, 양도 불가능한 라이선스</strong>를 부여합니다. 이 라이선스는 Adobe Stock 표준 라이선스와 호환됩니다.</p>
+      <h3>2. 허용되는 사용 <span class="badge">✓ 허용</span></h3>
+      <ul>
+        <li>상업 프로젝트, 광고, 마케팅 자료 및 웹사이트</li>
+        <li>인쇄물 (잡지, 책, 브로셔, 포스터)</li>
+        <li>소셜 미디어, 프레젠테이션, 앱 및 동영상</li>
+        <li>수정, 자르기 및 적용</li>
+      </ul>
+      <h3>3. 금지되는 사용 <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ 금지</span></h3>
+      <ul>
+        <li>이미지의 <strong>재배포 또는 재판매</strong></li>
+        <li>경쟁 스톡 이미지 서비스에서의 사용</li>
+        <li>제3자와 로그인 정보 공유</li>
+      </ul>
+      <h3>4. 구독 및 다운로드</h3>
+      <ul>
+        <li><strong>무료 플랜:</strong> 30일 체험, 총 10회 다운로드</li>
+        <li><strong>프리미엄:</strong> 월 ¥1,000 (또는 현지 통화 상당액) 무제한 다운로드</li>
+      </ul>
+      <div class="updated">최종 업데이트: 2026년 3월 14일</div>
+    </div>
+  </div>
+
+  <!-- ── French ──────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-fr">
+    <div class="terms-card">
+      <h2>📋 Conditions d'utilisation</h2>
+      <h3>1. Aperçu de la licence</h3>
+      <p>SNS Gallery vous accorde une <strong>licence non exclusive et non transférable</strong> pour utiliser les images de ce service. Cette licence est compatible avec la licence standard Adobe Stock.</p>
+      <h3>2. Utilisations autorisées <span class="badge">✓ Autorisé</span></h3>
+      <ul>
+        <li>Projets commerciaux, publicités, matériaux marketing et sites web</li>
+        <li>Publications imprimées (magazines, livres, brochures, affiches)</li>
+        <li>Médias numériques incluant réseaux sociaux, présentations, applications et vidéos</li>
+        <li>Usage éditorial et éducatif</li>
+        <li>Modification et adaptation pour vos projets</li>
+      </ul>
+      <h3>3. Utilisations interdites <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ Interdit</span></h3>
+      <ul>
+        <li><strong>Redistribution ou revente</strong> des images originales ou modifiées</li>
+        <li>Utilisation dans des services de banque d'images concurrents</li>
+        <li>Partage d'identifiants de connexion avec des tiers</li>
+      </ul>
+      <h3>4. Abonnement et téléchargements</h3>
+      <ul>
+        <li><strong>Gratuit :</strong> Essai de 30 jours avec 10 téléchargements maximum</li>
+        <li><strong>Premium :</strong> Téléchargements illimités à 1 000 ¥/mois</li>
+      </ul>
+      <div class="updated">Dernière mise à jour : 14 mars 2026</div>
+    </div>
+  </div>
+
+  <!-- ── German ──────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-de">
+    <div class="terms-card">
+      <h2>📋 Nutzungsbedingungen</h2>
+      <h3>1. Lizenzübersicht</h3>
+      <p>SNS Gallery gewährt Ihnen eine <strong>nicht-exklusive, nicht übertragbare Lizenz</strong> zur Nutzung der Bilder auf diesem Dienst. Diese Lizenz ist mit der Adobe Stock Standard-Lizenz kompatibel.</p>
+      <h3>2. Erlaubte Nutzung <span class="badge">✓ Erlaubt</span></h3>
+      <ul>
+        <li>Kommerzielle Projekte, Werbung, Marketingmaterialien und Websites</li>
+        <li>Druckpublikationen (Zeitschriften, Bücher, Broschüren, Poster)</li>
+        <li>Digitale Medien einschließlich sozialer Netzwerke, Präsentationen, Apps und Videos</li>
+        <li>Redaktionelle und Bildungszwecke</li>
+      </ul>
+      <h3>3. Verbotene Nutzung <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ Verboten</span></h3>
+      <ul>
+        <li><strong>Weiterverteilung oder Weiterverkauf</strong> von Original- oder modifizierten Bildern</li>
+        <li>Verwendung in konkurrierenden Stockbild-Diensten</li>
+        <li>Weitergabe von Anmeldedaten an Dritte</li>
+      </ul>
+      <h3>4. Abonnement und Downloads</h3>
+      <ul>
+        <li><strong>Kostenlos:</strong> 30-Tage-Testzeit mit maximal 10 Downloads</li>
+        <li><strong>Premium:</strong> Unbegrenzte Downloads für ¥1.000/Monat</li>
+      </ul>
+      <div class="updated">Zuletzt aktualisiert: 14. März 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Spanish ─────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-es">
+    <div class="terms-card">
+      <h2>📋 Términos de uso</h2>
+      <h3>1. Descripción de la licencia</h3>
+      <p>SNS Gallery le otorga una <strong>licencia no exclusiva e intransferible</strong> para usar las imágenes de este servicio. Esta licencia es compatible con la Licencia Estándar de Adobe Stock.</p>
+      <h3>2. Usos permitidos <span class="badge">✓ Permitido</span></h3>
+      <ul>
+        <li>Proyectos comerciales, publicidad, materiales de marketing y sitios web</li>
+        <li>Publicaciones impresas (revistas, libros, folletos, carteles)</li>
+        <li>Medios digitales incluyendo redes sociales, presentaciones, aplicaciones y vídeos</li>
+      </ul>
+      <h3>3. Usos prohibidos <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ Prohibido</span></h3>
+      <ul>
+        <li><strong>Redistribución o reventa</strong> de imágenes originales o modificadas</li>
+        <li>Uso en servicios de imágenes de stock de la competencia</li>
+      </ul>
+      <h3>4. Suscripción y descargas</h3>
+      <ul>
+        <li><strong>Gratis:</strong> Prueba de 30 días con un máximo de 10 descargas</li>
+        <li><strong>Premium:</strong> Descargas ilimitadas por ¥1,000/mes</li>
+      </ul>
+      <div class="updated">Última actualización: 14 de marzo de 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Portuguese ──────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-pt">
+    <div class="terms-card">
+      <h2>📋 Termos de Uso</h2>
+      <h3>1. Visão Geral da Licença</h3>
+      <p>SNS Gallery concede a você uma <strong>licença não exclusiva e intransferível</strong> para usar as imagens deste serviço. Esta licença é compatível com a Licença Padrão do Adobe Stock.</p>
+      <h3>2. Usos Permitidos <span class="badge">✓ Permitido</span></h3>
+      <ul>
+        <li>Projetos comerciais, publicidade, materiais de marketing e sites</li>
+        <li>Publicações impressas (revistas, livros, brochuras, cartazes)</li>
+        <li>Mídias digitais incluindo redes sociais, apresentações, aplicativos e vídeos</li>
+      </ul>
+      <h3>3. Usos Proibidos <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ Proibido</span></h3>
+      <ul>
+        <li><strong>Redistribuição ou revenda</strong> de imagens originais ou modificadas</li>
+        <li>Compartilhar credenciais de login com terceiros</li>
+      </ul>
+      <h3>4. Assinatura e Downloads</h3>
+      <ul>
+        <li><strong>Gratuito:</strong> Período de teste de 30 dias com até 10 downloads</li>
+        <li><strong>Premium:</strong> Downloads ilimitados por ¥1.000/mês</li>
+      </ul>
+      <div class="updated">Última atualização: 14 de março de 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Arabic ──────────────────────────────────────────────────────── -->
+  <div class="terms-section" id="terms-ar" dir="rtl" style="text-align:right;">
+    <div class="terms-card">
+      <h2>📋 شروط الاستخدام</h2>
+      <h3>1. نظرة عامة على الترخيص</h3>
+      <p>تمنحك SNS Gallery <strong>ترخيصاً غير حصري وغير قابل للنقل</strong> لاستخدام الصور في هذه الخدمة. هذا الترخيص متوافق مع رخصة Adobe Stock القياسية.</p>
+      <h3>2. الاستخدامات المسموح بها <span class="badge">✓ مسموح</span></h3>
+      <ul style="padding-right:20px;padding-left:0;">
+        <li>المشاريع التجارية والإعلانات ومواد التسويق والمواقع الإلكترونية</li>
+        <li>المطبوعات (المجلات والكتب والكتيبات والملصقات)</li>
+        <li>وسائل التواصل الاجتماعي والعروض التقديمية والتطبيقات ومقاطع الفيديو</li>
+        <li>تعديل الصور وتكييفها</li>
+      </ul>
+      <h3>3. الاستخدامات المحظورة <span class="badge" style="background:rgba(255,80,80,.15);color:#f88;">✗ محظور</span></h3>
+      <ul style="padding-right:20px;padding-left:0;">
+        <li><strong>إعادة توزيع أو بيع</strong> الصور الأصلية أو المعدلة</li>
+        <li>مشاركة بيانات تسجيل الدخول مع أطراف ثالثة</li>
+      </ul>
+      <h3>4. الاشتراك والتنزيلات</h3>
+      <ul style="padding-right:20px;padding-left:0;">
+        <li><strong>مجاني:</strong> فترة تجريبية 30 يوماً مع 10 تنزيلات كحد أقصى</li>
+        <li><strong>بريميوم:</strong> تنزيلات غير محدودة مقابل ¥1,000 شهرياً</li>
+      </ul>
+      <div class="updated">آخر تحديث: 14 مارس 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Other languages notice ─────────────────────────────────────── -->
+  <div class="terms-section" id="terms-other">
+    <div class="terms-card">
+      <h2>📋 Other Languages / 他の言語</h2>
+      <p>Full translations are available in English and Japanese above. For all other languages, please refer to the English version which is the legally binding document.</p>
+      <p style="margin-top:12px;">他の言語の完全版は準備中です。英語版が法的拘束力を持つ正式文書となります。</p>
+      <br>
+      <p style="font-size:12px;color:var(--muted);">
+        Available: 英語 / 日本語 / 中文 / 한국어 / Français / Deutsch / Español / Português / العربية<br>
+        Coming soon: Italiano / Русский / हिन्दी / ภาษาไทย / Tiếng Việt / Bahasa Indonesia / Türkçe / Polski / and more
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.terms-section').forEach(s => s.classList.remove('active'));
+    const section = document.getElementById('terms-' + btn.dataset.lang);
+    if (section) section.classList.add('active');
+    // RTL for Arabic
+    document.documentElement.dir = btn.dataset.lang === 'ar' ? 'rtl' : 'ltr';
+  });
+});
+</script>
+</body>
+</html>

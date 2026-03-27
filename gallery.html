@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNS Gallery – Multilingual Stock Photos</title>
+
+<style>
+/* ── Reset & Variables ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0a0a0a;
+  --surf:    #141414;
+  --surf2:   #1e1e1e;
+  --border:  #282828;
+  --accent:  #e8c97a;
+  --text:    #f0f0f0;
+  --muted:   #666;
+  --radius:  8px;
+  --header-h: 120px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+#header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px 10px;
+}
+
+.header-top {
+  display: flex; align-items: center; gap: 12px;
+  max-width: 1400px; margin: 0 auto 10px;
+  flex-wrap: nowrap;
+}
+
+/* Right-side controls — never shrink, never clip */
+.header-right {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; margin-left: auto;
+  min-width: 0; /* allow internal shrink if viewport is tiny */
+}
+
+#logo {
+  font-size: 18px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--accent); white-space: nowrap; text-decoration: none;
+  flex-shrink: 0;
+}
+
+#search-wrap {
+  position: relative; flex: 1; min-width: 120px; max-width: 500px;
+}
+#search-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 15px; pointer-events: none;
+}
+#search {
+  width: 100%;
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 22px; padding: 9px 38px 9px 40px;
+  color: var(--text); font-size: 14px; font-weight: 400; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+#search::placeholder { color: var(--muted); }
+#search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,201,122,.12); }
+#search-clear {
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  cursor: pointer; color: var(--muted); font-size: 18px; display: none; line-height: 1;
+}
+#search-clear:hover { color: var(--text); }
+
+/* ── Language selector（1.2倍固定） ─────────────────────────────────────── */
+#lang-select {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px;
+  padding: 8px 14px;          /* 1.2x of original 6px/10px */
+  font-size: 14px;             /* 1.2x of 12px */
+  font-weight: 500;
+  cursor: pointer; outline: none;
+  white-space: nowrap;
+  min-width: 140px;            /* prevent clipping for long language names */
+  max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: border-color .2s;
+  flex-shrink: 0;
+}
+#lang-select:focus, #lang-select:hover { border-color: var(--accent); }
+
+/* ── Terms link（1.2倍固定・ボタン風） ────────────────────────────────── */
+#terms-link {
+  font-size: 13px;             /* 1.2x of 11px */
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surf2);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+#terms-link:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Category Tabs 2段レイアウト ──────────────────────────────────────── */
+#cat-scroll {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 2px 4px 10px;
+}
+
+/* 各行：横並び＋スワイプ対応 */
+.cat-row {
+  display: flex; gap: 7px;
+  flex-wrap: wrap;                     /* 画面幅が狭い時は自動折り返し */
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ボタン本体（1.2倍固定） */
+.cat-btn {
+  /* デフォルト色（色なしカテゴリ用フォールバック） */
+  background:   var(--cbg,      var(--surf2));
+  border: 1px solid var(--cborder, var(--border));
+  color:        var(--ctext,    #999);
+
+  padding: 7px 16px;                   /* 1.2x */
+  border-radius: 20px;
+  font-size: 13px;                     /* 1.2x */
+  font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: background .18s, border-color .18s, color .18s, box-shadow .18s;
+  user-select: none; flex-shrink: 0;
+  letter-spacing: .01em; line-height: 1.4;
+}
+
+/* ホバー: 色が少し濃くなる */
+.cat-btn:hover:not(.active) {
+  background:   var(--chover,   rgba(255,255,255,.07));
+  border-color: var(--cborder,  rgba(232,201,122,.4));
+  color:        var(--ctext-h,  #eee);
+  box-shadow:   0 2px 10px rgba(0,0,0,.4);
+}
+
+/* 選択中 */
+.cat-btn.active {
+  background:   var(--cbg-a,   var(--accent));
+  border-color: var(--cbg-a,   var(--accent));
+  color:        var(--ctext-a, #111);
+  font-weight: 700;
+  box-shadow: 0 3px 14px var(--cshadow, rgba(232,201,122,.28));
+}
+
+/* スマホ補正：480px以下でフォントやや小さく */
+@media (max-width: 480px) {
+  .cat-btn { font-size: 12px; padding: 6px 12px; }
+}
+
+/* ── Subscription Status Bar ───────────────────────────────────────────── */
+.sub-bar {
+  text-align: center;
+  font-size: 13px;             /* 1.2x of 11px */
+  font-weight: 500;
+  padding: 7px 20px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: .01em;
+}
+.sub-bar a { color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600; }
+.sub-free    { background: rgba(232,201,122,.05); color: #888; }
+.sub-warn    { background: rgba(255,100,100,.08); color: #f99; }
+.sub-premium { background: rgba(100,220,100,.07); color: #9f9; }
+
+/* ── Stats ─────────────────────────────────────────────────────────────── */
+#stats {
+  text-align: center;
+  font-size: 13px;             /* 1.2x of 11px */
+  font-weight: 400;
+  color: #777;
+  padding: 10px 0 5px;
+  letter-spacing: .01em;
+}
+#stats b { color: var(--accent); font-weight: 700; }
+
+/* ── Responsive header adjustments ────────────────────────────────────── */
+@media (max-width: 720px) {
+  #header { padding: 10px 12px 8px; }
+  .header-top { gap: 8px; margin-bottom: 8px; }
+  #logo { font-size: 15px; }
+  #search { font-size: 13px; padding: 8px 34px; }
+  #lang-select { font-size: 12px; padding: 7px 10px; min-width: 110px; }
+  #terms-link { font-size: 12px; padding: 6px 9px; }
+}
+@media (max-width: 480px) {
+  #terms-link { display: none; } /* hide on very small screens */
+  #lang-select { min-width: 100px; max-width: 140px; }
+}
+
+/* ── Masonry Gallery ───────────────────────────────────────────────────── */
+#gallery {
+  columns: 5 190px; column-gap: 5px;
+  padding: 5px;
+  max-width: 1800px; margin: 0 auto;
+}
+@media (max-width: 960px) { #gallery { columns: 3 160px; } }
+@media (max-width: 520px) { #gallery { columns: 2 130px; } }
+
+.thumb {
+  break-inside: avoid; position: relative; overflow: hidden;
+  border-radius: var(--radius); cursor: pointer;
+  margin-bottom: 5px; background: var(--surf2);
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+.thumb:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 10px 32px rgba(0,0,0,.7); z-index: 2; }
+
+.thumb img {
+  width: 100%; height: auto; display: block;
+  opacity: 0; transition: opacity .35s ease;
+}
+.thumb img.loaded { opacity: 1; }
+
+.thumb-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.82) 0%, transparent 60%);
+  display: flex; flex-direction: column; align-items: flex-start;
+  justify-content: flex-end; padding: 10px 8px 8px;
+  opacity: 0; transition: opacity .22s;
+}
+.thumb:hover .thumb-overlay { opacity: 1; }
+
+.thumb-title {
+  font-size: 10px; color: rgba(255,255,255,.85);
+  line-height: 1.3; margin-bottom: 5px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; text-overflow: ellipsis; width: 100%;
+}
+
+.thumb-actions { display: flex; gap: 5px; width: 100%; }
+.btn-view, .btn-dl {
+  border-radius: 12px; font-size: 10px; cursor: pointer;
+  padding: 4px 10px; border: 1px solid rgba(255,255,255,.3);
+  backdrop-filter: blur(4px); transition: background .15s;
+}
+.btn-view { background: rgba(255,255,255,.12); color: #fff; }
+.btn-view:hover { background: rgba(255,255,255,.22); }
+.btn-dl { background: rgba(232,201,122,.85); border-color: var(--accent); color: #111; font-weight: 600; }
+.btn-dl:hover { background: var(--accent); }
+
+.cat-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(4px);
+  color: rgba(255,255,255,.7); font-size: 8px; font-weight: 700;
+  letter-spacing: .05em; padding: 2px 6px; border-radius: 8px;
+  text-transform: uppercase; opacity: 0; transition: opacity .22s;
+}
+.thumb:hover .cat-badge { opacity: 1; }
+
+/* ── Empty / Loader ────────────────────────────────────────────────────── */
+#empty {
+  display: none; text-align: center;
+  padding: 80px 20px; color: var(--muted);
+}
+#empty p { font-size: 14px; margin-top: 12px; }
+
+#load-more-wrap { text-align: center; padding: 20px; }
+#load-more {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 30px; border-radius: 20px;
+  font-size: 13px; cursor: pointer; transition: all .15s; display: none;
+}
+#load-more:hover { border-color: var(--accent); color: var(--accent); }
+
+#spinner {
+  display: none; text-align: center; padding: 30px;
+  color: var(--muted); font-size: 13px;
+}
+
+/* ── Lightbox ──────────────────────────────────────────────────────────── */
+#lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.96); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+#lightbox.active { display: flex; }
+
+#lb-layout {
+  display: flex; align-items: stretch;
+  max-width: 1200px; width: 95vw; max-height: 92vh;
+  gap: 0; border-radius: 10px; overflow: hidden;
+}
+
+#lb-img-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: #000; min-width: 200px; position: relative;
+}
+#lb-img {
+  max-width: 100%; max-height: 88vh; object-fit: contain;
+  display: block; opacity: 0; transition: opacity .18s;
+}
+#lb-img.loaded { opacity: 1; }
+#lb-img-spinner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(255,255,255,.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#lb-panel {
+  width: 280px; min-width: 240px;
+  background: var(--surf); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+@media (max-width: 760px) {
+  #lb-layout { flex-direction: column; }
+  #lb-panel { width: 100%; max-height: 220px; border-left: none; border-top: 1px solid var(--border); }
+}
+
+#lb-panel-inner { flex: 1; overflow-y: auto; padding: 16px; }
+
+#lb-category {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 10px;
+  background: rgba(232,201,122,.15); color: var(--accent);
+  margin-bottom: 10px;
+}
+
+#lb-title {
+  font-size: 14px; font-weight: 600; line-height: 1.4;
+  margin-bottom: 12px; color: var(--text);
+}
+
+.lb-section-label {
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px; margin-top: 14px;
+}
+
+#lb-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.lb-tag {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--muted); font-size: 10px; padding: 3px 8px;
+  border-radius: 10px; cursor: pointer; transition: all .15s;
+}
+.lb-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+#lb-filename {
+  font-size: 9px; color: var(--muted); margin-top: 14px;
+  word-break: break-all;
+}
+
+#lb-panel-footer {
+  padding: 12px 16px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+#lb-dl-btn {
+  width: 100%; padding: 10px; border-radius: 8px;
+  background: var(--accent); border: none; color: #111;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: opacity .15s;
+}
+#lb-dl-btn:hover { opacity: .88; }
+#lb-dl-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+#lb-counter {
+  font-size: 11px; color: var(--muted); text-align: center;
+}
+
+.lb-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.07); border-radius: 50%;
+  cursor: pointer; color: #fff; font-size: 22px;
+  transition: background .15s; user-select: none; z-index: 1002;
+}
+.lb-nav:hover { background: rgba(255,255,255,.16); }
+#lb-prev { left: 10px; }
+#lb-next { right: 10px; }
+
+#lb-close {
+  position: fixed; top: 12px; right: 14px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.08); border-radius: 50%;
+  cursor: pointer; color: #fff; font-size: 20px;
+  transition: background .15s; z-index: 1002;
+}
+#lb-close:hover { background: rgba(255,255,255,.18); }
+
+/* ── Paywall Modal ─────────────────────────────────────────────────────── */
+#paywall-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.88); z-index: 2000;
+  align-items: center; justify-content: center;
+}
+#paywall-modal.active { display: flex; }
+
+.paywall-box {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 14px; padding: 36px 32px;
+  max-width: 440px; width: 90%;
+  text-align: center;
+}
+.paywall-icon { font-size: 48px; margin-bottom: 16px; }
+.paywall-box h2 { font-size: 20px; margin-bottom: 10px; }
+#paywall-msg { color: var(--muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+
+.plan-card {
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 20px; margin-bottom: 16px;
+  text-align: left;
+}
+.plan-card h3 { font-size: 22px; color: var(--accent); margin-bottom: 4px; }
+.plan-desc { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+.plan-features { list-style: none; font-size: 13px; }
+.plan-features li::before { content: '✓ '; color: var(--accent); }
+.plan-features li { margin-bottom: 5px; }
+
+#checkout-btn {
+  width: 100%; padding: 14px;
+  background: var(--accent); border: none; border-radius: 10px;
+  color: #111; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: opacity .15s; margin-bottom: 8px;
+}
+#checkout-btn:hover { opacity: .88; }
+#checkout-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.paywall-close {
+  font-size: 12px; color: var(--muted); cursor: pointer;
+  text-decoration: underline; display: block; margin-top: 12px;
+}
+.paywall-close:hover { color: var(--text); }
+
+.currency-sel {
+  font-size: 11px; color: var(--muted); margin-bottom: 12px;
+}
+.currency-sel select {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 4px; padding: 3px 6px;
+  font-size: 11px; margin-left: 5px;
+}
+
+/* ── Toast ─────────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--surf); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 20px;
+  border-radius: 20px; font-size: 13px;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none; z-index: 3000; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.6);
+}
+#toast.active { opacity: 1; }
+#toast.toast-success { border-color: #4a8; }
+#toast.toast-warning { border-color: #f84; }
+#toast.toast-error   { border-color: #f44; }
+#toast.toast-info    { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<div id="header">
+  <div class="header-top">
+    <a href="#" id="logo">📸 SNS Gallery</a>
+
+    <div id="search-wrap">
+      <span id="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Search images...">
+      <span id="search-clear">&times;</span>
+    </div>
+
+    <div class="header-right">
+      <select id="lang-select" title="Language / 言語"></select>
+      <a href="/terms.html" id="terms-link" target="_blank">利用規約</a>
+    </div>
+  </div>
+
+  <div id="cat-scroll">
+    <!-- Category buttons injected by JS -->
+  </div>
+</div>
+
+<!-- ── Status Bar ──────────────────────────────────────────────────────── -->
+<div id="sub-status-bar" class="sub-bar sub-free">読み込み中...</div>
+
+<!-- ── Stats ───────────────────────────────────────────────────────────── -->
+<div id="stats">読み込み中...</div>
+
+<!-- ── Gallery Grid ────────────────────────────────────────────────────── -->
+<div id="gallery"></div>
+
+<div id="empty">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+  <p>No images found for this query.</p>
+</div>
+
+<div id="spinner"><div class="spinner" style="margin:0 auto;"></div></div>
+<div id="load-more-wrap"><button id="load-more">もっと見る</button></div>
+
+<!-- ── Lightbox ────────────────────────────────────────────────────────── -->
+<div id="lightbox">
+  <span class="lb-nav" id="lb-prev">&#8249;</span>
+  <span class="lb-nav" id="lb-next">&#8250;</span>
+  <div id="lb-close">&times;</div>
+
+  <div id="lb-layout">
+    <div id="lb-img-wrap">
+      <div id="lb-img-spinner"><div class="spinner"></div></div>
+      <img id="lb-img" src="" alt="">
+    </div>
+    <div id="lb-panel">
+      <div id="lb-panel-inner">
+        <div id="lb-category"></div>
+        <div id="lb-title"></div>
+        <div class="lb-section-label">TAGS</div>
+        <div id="lb-tags"></div>
+        <div id="lb-filename"></div>
+      </div>
+      <div id="lb-panel-footer">
+        <div id="lb-counter"></div>
+        <button id="lb-dl-btn">⬇ ダウンロード</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Paywall Modal ───────────────────────────────────────────────────── -->
+<div id="paywall-modal">
+  <div class="paywall-box">
+    <div class="paywall-icon">🔓</div>
+    <h2>プレミアムにアップグレード</h2>
+    <p id="paywall-msg">無料ダウンロード枠（10枚）を使い切りました。</p>
+    <div class="plan-card">
+      <h3>¥1,000<span style="font-size:14px;font-weight:400;">/月</span></h3>
+      <p class="plan-desc">全世界対応・多言語タグ付き高品質ストック素材</p>
+      <ul class="plan-features">
+        <li>無制限ダウンロード</li>
+        <li>30カ国語タイトル・タグ付き</li>
+        <li>商用利用可能</li>
+        <li>新規追加画像も即アクセス</li>
+      </ul>
+    </div>
+    <div class="currency-sel">
+      通貨を選択:
+      <select id="currency-select">
+        <option value="JPY">¥1,000/月 (JPY)</option>
+        <option value="USD">$7/month (USD)</option>
+        <option value="EUR">€6/month (EUR)</option>
+        <option value="GBP">£5/month (GBP)</option>
+        <option value="KRW">₩9,000/월 (KRW)</option>
+        <option value="TWD">NT$220/月 (TWD)</option>
+      </select>
+    </div>
+    <button id="checkout-btn">サブスクリプションを開始</button>
+    <span class="paywall-close" id="paywall-dismiss">キャンセル</span>
+  </div>
+</div>
+
+<!-- ── Toast ───────────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script src="subscription.js"></script>
+<script>
+/* ── Language config ─────────────────────────────────────────────────── */
+const LANGUAGES = [
+  { code:'en-US', label:'English (US)' },
+  { code:'ja-JP', label:'日本語' },
+  { code:'zh-CN', label:'中文（简体）' },
+  { code:'zh-TW', label:'中文（繁體）' },
+  { code:'ko-KR', label:'한국어' },
+  { code:'fr-FR', label:'Français' },
+  { code:'de-DE', label:'Deutsch' },
+  { code:'es-ES', label:'Español' },
+  { code:'pt-BR', label:'Português (BR)' },
+  { code:'pt-PT', label:'Português (PT)' },
+  { code:'it-IT', label:'Italiano' },
+  { code:'ru-RU', label:'Русский' },
+  { code:'ar-SA', label:'العربية' },
+  { code:'hi-IN', label:'हिन्दी' },
+  { code:'th-TH', label:'ภาษาไทย' },
+  { code:'vi-VN', label:'Tiếng Việt' },
+  { code:'id-ID', label:'Bahasa Indonesia' },
+  { code:'tr-TR', label:'Türkçe' },
+  { code:'nl-NL', label:'Nederlands' },
+  { code:'pl-PL', label:'Polski' },
+  { code:'sv-SE', label:'Svenska' },
+  { code:'da-DK', label:'Dansk' },
+  { code:'no-NO', label:'Norsk' },
+  { code:'fi-FI', label:'Suomi' },
+  { code:'cs-CZ', label:'Čeština' },
+  { code:'hu-HU', label:'Magyar' },
+  { code:'ro-RO', label:'Română' },
+  { code:'uk-UA', label:'Українська' },
+  { code:'he-IL', label:'עברית' },
+  { code:'el-GR', label:'Ελληνικά' }
+];
+
+const RTL_LANGS = new Set(['ar-SA', 'he-IL']);
+
+const CAT_ICONS = {
+  all: '🌐', animals: '🐾', architecture: '🏛️', backgrounds: '🖼️',
+  business: '💼', education: '📚', family: '👨‍👩‍👧', food: '🍽️',
+  logos: '🎨', nature: '🌿', people: '👥', 'plants-flowers': '🌸',
+  sports: '⚽', technology: '💻', travel: '✈️', wallpapers: '🖥️',
+  // 新ジャンル（cosmic）
+  'cosmic-beauty': '✨', 'alien-life': '👽', 'space-worlds': '🌌',
+  // 世界美女図鑑 第2章
+  'world-beauty': '🌍'
+};
+
+// ジャンル別パステルカラー定義
+// bg=通常背景, border=枠線, text=文字, hover=ホバー背景, active=選択背景, shadow=選択時影
+const CAT_COLORS = {
+  all:              { bg:'rgba(232,201,122,.13)', border:'rgba(232,201,122,.32)', text:'#c9a84a', hover:'rgba(232,201,122,.22)', active:'#e8c97a', textA:'#111', shadow:'rgba(232,201,122,.35)' },
+  animals:          { bg:'rgba(255,155, 60,.11)', border:'rgba(255,155, 60,.28)', text:'#d07828', hover:'rgba(255,155, 60,.22)', active:'#e08030', textA:'#fff', shadow:'rgba(255,155,60,.30)' },
+  architecture:     { bg:'rgba(160,155,210,.11)', border:'rgba(160,155,210,.28)', text:'#8880b8', hover:'rgba(160,155,210,.22)', active:'#9088c8', textA:'#fff', shadow:'rgba(160,155,210,.30)' },
+  backgrounds:      { bg:'rgba(190,190,190,.10)', border:'rgba(190,190,190,.26)', text:'#aaa',    hover:'rgba(190,190,190,.20)', active:'#b0b0b0', textA:'#111', shadow:'rgba(190,190,190,.28)' },
+  business:         { bg:'rgba( 50,160,230,.11)', border:'rgba( 50,160,230,.28)', text:'#3090c8', hover:'rgba( 50,160,230,.22)', active:'#3090cc', textA:'#fff', shadow:'rgba(50,160,230,.30)' },
+  education:        { bg:'rgba(255,200, 50,.11)', border:'rgba(255,200, 50,.28)', text:'#b08000', hover:'rgba(255,200, 50,.22)', active:'#d0a000', textA:'#111', shadow:'rgba(255,200,50,.30)' },
+  family:           { bg:'rgba(255,130,190,.11)', border:'rgba(255,130,190,.28)', text:'#c05090', hover:'rgba(255,130,190,.22)', active:'#d060a0', textA:'#fff', shadow:'rgba(255,130,190,.30)' },
+  food:             { bg:'rgba(255,100, 70,.11)', border:'rgba(255,100, 70,.28)', text:'#c04020', hover:'rgba(255,100, 70,.22)', active:'#d04020', textA:'#fff', shadow:'rgba(255,100,70,.30)' },
+  logos:            { bg:'rgba(155, 90,225,.11)', border:'rgba(155, 90,225,.28)', text:'#9050c8', hover:'rgba(155, 90,225,.22)', active:'#8040b8', textA:'#fff', shadow:'rgba(155,90,225,.30)' },
+  nature:           { bg:'rgba( 70,200, 90,.11)', border:'rgba( 70,200, 90,.28)', text:'#309840', hover:'rgba( 70,200, 90,.22)', active:'#38a844', textA:'#fff', shadow:'rgba(70,200,90,.30)' },
+  people:           { bg:'rgba( 90,170,255,.11)', border:'rgba( 90,170,255,.28)', text:'#3080c8', hover:'rgba( 90,170,255,.22)', active:'#3888d0', textA:'#fff', shadow:'rgba(90,170,255,.30)' },
+  'plants-flowers': { bg:'rgba(255,140,190,.11)', border:'rgba(255,140,190,.28)', text:'#c04888', hover:'rgba(255,140,190,.22)', active:'#d05090', textA:'#fff', shadow:'rgba(255,140,190,.30)' },
+  sports:           { bg:'rgba(255, 70, 70,.11)', border:'rgba(255, 70, 70,.28)', text:'#c02020', hover:'rgba(255, 70, 70,.22)', active:'#c82020', textA:'#fff', shadow:'rgba(255,70,70,.30)' },
+  technology:       { bg:'rgba( 40,210,230,.11)', border:'rgba( 40,210,230,.28)', text:'#18a0a8', hover:'rgba( 40,210,230,.22)', active:'#18a8b0', textA:'#fff', shadow:'rgba(40,210,230,.30)' },
+  travel:           { bg:'rgba( 40,140,255,.11)', border:'rgba( 40,140,255,.28)', text:'#2068c0', hover:'rgba( 40,140,255,.22)', active:'#2270d0', textA:'#fff', shadow:'rgba(40,140,255,.30)' },
+  wallpapers:       { bg:'rgba(145, 90,255,.11)', border:'rgba(145, 90,255,.28)', text:'#8040c0', hover:'rgba(145, 90,255,.22)', active:'#7838b8', textA:'#fff', shadow:'rgba(145,90,255,.30)' },
+  // 新ジャンル
+  'cosmic-beauty':  { bg:'rgba(220, 80,220,.12)', border:'rgba(220, 80,220,.30)', text:'#c040c0', hover:'rgba(220, 80,220,.24)', active:'#c030b8', textA:'#fff', shadow:'rgba(220,80,220,.35)' },
+  'alien-life':     { bg:'rgba( 60,230, 80,.12)', border:'rgba( 60,230, 80,.30)', text:'#28b038', hover:'rgba( 60,230, 80,.24)', active:'#20a030', textA:'#fff', shadow:'rgba(60,230,80,.35)' },
+  'space-worlds':   { bg:'rgba( 30,160,255,.12)', border:'rgba( 30,160,255,.30)', text:'#1870c8', hover:'rgba( 30,160,255,.24)', active:'#1070d0', textA:'#fff', shadow:'rgba(30,160,255,.35)' },
+  // 世界美女図鑑 第2章
+  'world-beauty':   { bg:'rgba(255,150, 80,.12)', border:'rgba(255,150, 80,.30)', text:'#c06020', hover:'rgba(255,150, 80,.24)', active:'#e07030', textA:'#fff', shadow:'rgba(255,150,80,.35)' }
+};
+
+const CAT_LABELS = {
+  all:'すべて', animals:'動物', architecture:'建築', backgrounds:'背景',
+  business:'ビジネス', education:'教育', family:'家族', food:'食べ物',
+  logos:'ロゴ', nature:'自然', people:'人物', 'plants-flowers':'植物・花',
+  sports:'スポーツ', technology:'技術', travel:'旅行', wallpapers:'壁紙',
+  // 新ジャンル
+  'cosmic-beauty':'コズミック美女', 'alien-life':'異星生命体', 'space-worlds':'宇宙絶景',
+  // 世界美女図鑑 第2章
+  'world-beauty':'世界美女図鑑'
+};
+
+/* ── State ───────────────────────────────────────────────────────────── */
+let currentLang    = detectInitialLang();
+let currentCat     = 'all';
+let currentQuery   = '';
+let currentPage    = 1;
+let totalPages     = 1;
+let totalCount     = 0;
+let isLoading      = false;
+let filteredImages = [];  // current page's image data
+let allLoaded      = [];  // all accumulated images for lightbox
+let lbIndex        = 0;
+let currentLbImg   = null;
+
+/* ── Language detection ──────────────────────────────────────────────── */
+function detectInitialLang() {
+  const stored = localStorage.getItem('sns_gallery_lang');
+  if (stored && LANGUAGES.find(l => l.code === stored)) return stored;
+  const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en-US';
+  const match = LANGUAGES.find(l => l.code === nav || l.code.startsWith(nav.split('-')[0]));
+  return match ? match.code : 'en-US';
+}
+
+/* ── DOM refs ────────────────────────────────────────────────────────── */
+const galleryEl   = document.getElementById('gallery');
+const statsEl     = document.getElementById('stats');
+const emptyEl     = document.getElementById('empty');
+const spinnerEl   = document.getElementById('spinner');
+const loadMoreBtn = document.getElementById('load-more');
+const searchEl    = document.getElementById('search');
+const clearBtn    = document.getElementById('search-clear');
+const langSel     = document.getElementById('lang-select');
+const catScroll   = document.getElementById('cat-scroll');
+const lightbox    = document.getElementById('lightbox');
+const lbImg       = document.getElementById('lb-img');
+const lbTitle     = document.getElementById('lb-title');
+const lbTags      = document.getElementById('lb-tags');
+const lbCategory  = document.getElementById('lb-category');
+const lbFilename  = document.getElementById('lb-filename');
+const lbCounter   = document.getElementById('lb-counter');
+const lbDlBtn     = document.getElementById('lb-dl-btn');
+const paywallEl   = document.getElementById('paywall-modal');
+
+/* ── Language selector ───────────────────────────────────────────────── */
+LANGUAGES.forEach(l => {
+  const opt = document.createElement('option');
+  opt.value = l.code; opt.textContent = l.label;
+  if (l.code === currentLang) opt.selected = true;
+  langSel.appendChild(opt);
+});
+
+langSel.addEventListener('change', () => {
+  currentLang = langSel.value;
+  localStorage.setItem('sns_gallery_lang', currentLang);
+  const rtl = RTL_LANGS.has(currentLang);
+  document.documentElement.dir = rtl ? 'rtl' : 'ltr';
+  loadImages(true);
+});
+
+/* ── Category tabs（2段・色分け） ────────────────────────────────────── */
+function applyBtnColors(btn, category, isActive) {
+  const c = CAT_COLORS[category];
+  if (!c) return;
+  btn.style.setProperty('--cbg',      c.bg);
+  btn.style.setProperty('--cborder',  c.border);
+  btn.style.setProperty('--ctext',    c.text);
+  btn.style.setProperty('--chover',   c.hover);
+  btn.style.setProperty('--cbg-a',    c.active);
+  btn.style.setProperty('--ctext-a',  c.textA);
+  btn.style.setProperty('--ctext-h',  c.textA);
+  btn.style.setProperty('--cshadow',  c.shadow);
+}
+
+async function loadCategories() {
+  try {
+    const data = await fetch('/api/categories').then(r => r.json());
+    catScroll.innerHTML = '';
+
+    // 2段に分割（8+8）
+    const half  = Math.ceil(data.length / 2);
+    const rows  = [data.slice(0, half), data.slice(half)];
+
+    rows.forEach(rowData => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'cat-row';
+
+      rowData.forEach(({ category, count }) => {
+        const btn   = document.createElement('button');
+        const isAct = category === currentCat;
+        btn.className   = 'cat-btn' + (isAct ? ' active' : '');
+        btn.dataset.cat = category;
+
+        const icon  = CAT_ICONS[category]  || '📁';
+        const label = CAT_LABELS[category] || category;
+        btn.innerHTML =
+          `${icon} ${label} <span style="opacity:.55;font-size:10px;">(${count.toLocaleString()})</span>`;
+
+        applyBtnColors(btn, category, isAct);
+
+        btn.addEventListener('click', () => {
+          if (currentCat === category) return;
+          currentCat = category;
+          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          allLoaded = [];
+          loadImages(true);
+        });
+
+        rowEl.appendChild(btn);
+      });
+
+      catScroll.appendChild(rowEl);
+    });
+  } catch (e) {
+    console.error('Failed to load categories', e);
+  }
+}
+
+/* ── Load images from API ────────────────────────────────────────────── */
+async function loadImages(reset = false) {
+  if (isLoading) return;
+  if (!reset && currentPage > totalPages) return;
+
+  isLoading = true;
+  if (reset) {
+    currentPage = 1;
+    allLoaded   = [];
+    galleryEl.innerHTML = '';
+    emptyEl.style.display = 'none';
+  }
+
+  spinnerEl.style.display = 'block';
+  loadMoreBtn.style.display = 'none';
+
+  const params = new URLSearchParams({
+    category: currentCat,
+    lang:     currentLang,
+    page:     currentPage,
+    limit:    50,
+    q:        currentQuery
+  });
+
+  try {
+    const data = await fetch(`/api/images?${params}`).then(r => r.json());
+    totalPages  = data.pages || 1;
+    totalCount  = data.total || 0;
+    currentPage = data.page + 1;
+
+    renderImages(data.images);
+    updateStats();
+
+    if (data.images.length === 0 && allLoaded.length === 0) {
+      emptyEl.style.display = 'block';
+    }
+    if (currentPage <= totalPages) {
+      loadMoreBtn.style.display = 'inline-block';
+    }
+  } catch (e) {
+    console.error('Failed to load images', e);
+    statsEl.innerHTML = '<span style="color:#f44">サーバーに接続できません。<code>node server.js</code> を起動してください。</span>';
+  } finally {
+    spinnerEl.style.display = 'none';
+    isLoading = false;
+  }
+}
+
+function updateStats() {
+  statsEl.innerHTML = totalCount > 0
+    ? `<b>${totalCount.toLocaleString()}</b> 枚の画像 | 表示中: <b>${allLoaded.length.toLocaleString()}</b> 枚`
+    : '0 枚';
+}
+
+/* ── Render image cards ──────────────────────────────────────────────── */
+function renderImages(images) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target.querySelector('img[data-src]');
+      if (img) {
+        img.src = img.dataset.src;
+        delete img.dataset.src;
+        img.onload  = () => img.classList.add('loaded');
+        img.onerror = () => img.classList.add('loaded');
+      }
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '500px' });
+
+  const frag = document.createDocumentFragment();
+
+  images.forEach(imgData => {
+    const globalIndex = allLoaded.length;
+    allLoaded.push(imgData);
+
+    const div = document.createElement('div');
+    div.className = 'thumb';
+    div.dataset.index = globalIndex;
+
+    const imgEl = document.createElement('img');
+    imgEl.dataset.src = imgData.path;
+    imgEl.alt = imgData.title;
+
+    const badge = document.createElement('div');
+    badge.className = 'cat-badge';
+    badge.textContent = imgData.category;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'thumb-overlay';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'thumb-title';
+    titleEl.textContent = imgData.title;
+
+    const actions = document.createElement('div');
+    actions.className = 'thumb-actions';
+
+    const btnView = document.createElement('button');
+    btnView.className = 'btn-view';
+    btnView.textContent = '拡大';
+    btnView.addEventListener('click', e => { e.stopPropagation(); openLightbox(globalIndex); });
+
+    const btnDl = document.createElement('button');
+    btnDl.className = 'btn-dl';
+    btnDl.textContent = '⬇ DL';
+    btnDl.addEventListener('click', e => {
+      e.stopPropagation();
+      SNSSub.requestDownload(imgData.path, imgData.filename);
+    });
+
+    actions.appendChild(btnView);
+    actions.appendChild(btnDl);
+    overlay.appendChild(titleEl);
+    overlay.appendChild(actions);
+
+    div.appendChild(imgEl);
+    div.appendChild(badge);
+    div.appendChild(overlay);
+    div.addEventListener('click', () => openLightbox(globalIndex));
+
+    frag.appendChild(div);
+    observer.observe(div);
+  });
+
+  galleryEl.appendChild(frag);
+}
+
+/* ── Lightbox ────────────────────────────────────────────────────────── */
+function openLightbox(index) {
+  lbIndex = index;
+  showLbImage();
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('active');
+  lbImg.src = '';
+  lbImg.classList.remove('loaded');
+  document.body.style.overflow = '';
+}
+
+function showLbImage() {
+  const img = allLoaded[lbIndex];
+  if (!img) return;
+  currentLbImg = img;
+
+  lbImg.classList.remove('loaded');
+  document.getElementById('lb-img-spinner').style.display = 'flex';
+  lbImg.onload  = () => { document.getElementById('lb-img-spinner').style.display = 'none'; lbImg.classList.add('loaded'); };
+  lbImg.onerror = () => { document.getElementById('lb-img-spinner').style.display = 'none'; lbImg.classList.add('loaded'); };
+  lbImg.src = img.path;
+
+  lbCategory.textContent = `${CAT_ICONS[img.category] || '📁'} ${img.category}`;
+  lbTitle.textContent    = img.title;
+  lbFilename.textContent = img.filename;
+
+  lbTags.innerHTML = '';
+  (img.tags || []).forEach(tag => {
+    const span = document.createElement('span');
+    span.className   = 'lb-tag';
+    span.textContent = tag;
+    span.title       = 'クリックでコピー';
+    span.addEventListener('click', () => {
+      navigator.clipboard.writeText(tag).then(() => SNSSub.showToast('📋 コピーしました: ' + tag, 'success', 2000));
+    });
+    lbTags.appendChild(span);
+  });
+
+  lbCounter.textContent = `${lbIndex + 1} / ${allLoaded.length}`;
+
+  // Fetch full 30-lang labels lazily
+  loadFullLabels(img);
+}
+
+async function loadFullLabels(imgData) {
+  try {
+    const labels = await fetch(`/api/image-labels?path=${encodeURIComponent(imgData.path)}`).then(r => r.json());
+    if (currentLbImg !== imgData) return; // user navigated away
+
+    const lbl = labels[currentLang] || labels['en-US'] || {};
+    if (lbl.title) lbTitle.textContent = lbl.title;
+
+    lbTags.innerHTML = '';
+    (lbl.tags || imgData.tags || []).forEach(tag => {
+      const span = document.createElement('span');
+      span.className = 'lb-tag';
+      span.textContent = tag;
+      span.addEventListener('click', () => {
+        navigator.clipboard.writeText(tag).then(() => SNSSub.showToast('📋 ' + tag, 'success', 2000));
+      });
+      lbTags.appendChild(span);
+    });
+  } catch (e) { /* use cached data */ }
+}
+
+function showPrev() { lbIndex = (lbIndex - 1 + allLoaded.length) % allLoaded.length; showLbImage(); }
+function showNext() {
+  lbIndex = (lbIndex + 1) % allLoaded.length;
+  showLbImage();
+  // Auto-load more if near the end
+  if (lbIndex >= allLoaded.length - 5 && currentPage <= totalPages) loadImages(false);
+}
+
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lb-prev').addEventListener('click', e => { e.stopPropagation(); showPrev(); });
+document.getElementById('lb-next').addEventListener('click', e => { e.stopPropagation(); showNext(); });
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+lbDlBtn.addEventListener('click', () => {
+  if (currentLbImg) SNSSub.requestDownload(currentLbImg.path, currentLbImg.filename);
+});
+
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('active')) return;
+  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'ArrowLeft')  showPrev();
+  if (e.key === 'ArrowRight') showNext();
+});
+
+let touchStartX = 0;
+lightbox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+lightbox.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) { dx < 0 ? showNext() : showPrev(); }
+});
+
+/* ── Search ──────────────────────────────────────────────────────────── */
+let searchTimer;
+searchEl.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentQuery = searchEl.value.trim();
+    clearBtn.style.display = currentQuery ? 'block' : 'none';
+    allLoaded = [];
+    loadImages(true);
+  }, 280);
+});
+clearBtn.addEventListener('click', () => {
+  searchEl.value = ''; currentQuery = '';
+  clearBtn.style.display = 'none';
+  allLoaded = []; loadImages(true);
+});
+
+/* ── Load More ───────────────────────────────────────────────────────── */
+loadMoreBtn.addEventListener('click', () => loadImages(false));
+
+/* ── Infinite scroll ─────────────────────────────────────────────────── */
+const scrollObserver = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting && !isLoading && currentPage <= totalPages) {
+    loadImages(false);
+  }
+}, { threshold: 0.5 });
+scrollObserver.observe(document.getElementById('load-more-wrap'));
+
+/* ── Paywall & Checkout ──────────────────────────────────────────────── */
+document.getElementById('checkout-btn').addEventListener('click', () => {
+  const currency = document.getElementById('currency-select').value;
+  SNSSub.startCheckout(currency);
+});
+document.getElementById('paywall-dismiss').addEventListener('click', () => {
+  paywallEl.classList.remove('active');
+});
+paywallEl.addEventListener('click', e => {
+  if (e.target === paywallEl) paywallEl.classList.remove('active');
+});
+
+/* ── Init ─────────────────────────────────────────────────────────────── */
+(async () => {
+  await loadCategories();
+  await loadImages(true);
+  SNSSub.updateStatusBar();
+})();
+</script>
+</body>
+</html>

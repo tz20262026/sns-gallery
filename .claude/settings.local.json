@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(node -e \"require\\(''C:/Users/81808/AppData/Local/Temp/node_modules/docx''\\); console.log\\(''OK''\\)\")",
+      "Bash(node:*)"
+    ]
+  }
+}
