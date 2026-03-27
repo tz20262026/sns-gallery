@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: sns-gallery
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: R2_BASE_URL
+        value: https://pub-1b2e148e5cac4d9fb1930c69576c4a4c.r2.dev
+      - key: STRIPE_SECRET_KEY
+        sync: false
