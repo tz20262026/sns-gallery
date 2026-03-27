@@ -32,13 +32,9 @@ const R2_BASE_URL = process.env.R2_BASE_URL || 'https://pub-1b2e148e5cac4d9fb193
 const BASE_DIR = __dirname.replace(/\\/g, '/');
 function normalizePath(src) {
   const p = (src || '').replace(/\\/g, '/');
-  let relative;
-  if (p.startsWith(BASE_DIR)) {
-    relative = p.slice(BASE_DIR.length).replace(/^\//, '');
-  } else {
-    relative = p;
-  }
-  // Return full R2 URL
+  // Extract the "images/..." portion from absolute or relative paths
+  const match = p.match(/(images\/.+)$/);
+  const relative = match ? match[1] : p;
   return `${R2_BASE_URL}/${relative}`;
 }
 
