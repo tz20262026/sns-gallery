@@ -41,6 +41,11 @@ body {
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   padding: 12px 20px 10px;
+  /* Auto-hide: smooth slide-up on scroll-down, slide-down on scroll-up */
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+#header.header-hidden {
+  transform: translateY(-100%);
 }
 
 .header-top {
@@ -132,6 +137,18 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* スマホ：カテゴリ行を横スクロール化（折り返し禁止で密集解消） */
+@media (max-width: 720px) {
+  .cat-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cat-row::-webkit-scrollbar { display: none; }
+}
+
 /* ボタン本体（1.2倍固定） */
 .cat-btn {
   /* デフォルト色（色なしカテゴリ用フォールバック） */
@@ -201,13 +218,18 @@ body {
   #header { padding: 10px 12px 8px; }
   .header-top { gap: 8px; margin-bottom: 8px; }
   #logo { font-size: 15px; }
-  #search { font-size: 13px; padding: 8px 34px; }
-  #lang-select { font-size: 12px; padding: 7px 10px; min-width: 110px; }
+  /* 検索バー: 左アイコン分のパディングを確保しつつ文字切れ解消 */
+  #search { font-size: 13px; padding: 8px 30px 8px 36px; }
+  #lang-select { font-size: 12px; padding: 7px 8px; min-width: 100px; max-width: 130px; }
   #terms-link { font-size: 12px; padding: 6px 9px; }
 }
 @media (max-width: 480px) {
   #terms-link { display: none; } /* hide on very small screens */
-  #lang-select { min-width: 100px; max-width: 140px; }
+  /* 極小画面: 言語セレクトをアイコンのみ表示できるよう縮小 */
+  #lang-select { min-width: 80px; max-width: 110px; font-size: 11px; padding: 7px 6px; }
+  /* 検索プレースホルダーを短く見せるためフォントも縮小 */
+  #search { font-size: 12px; padding: 8px 28px 8px 34px; }
+  #search-wrap { min-width: 100px; }
 }
 
 /* ── Masonry Gallery ───────────────────────────────────────────────────── */
@@ -852,7 +874,8 @@ function renderImages(images) {
         img.src = img.dataset.src;
         delete img.dataset.src;
         img.onload  = () => img.classList.add('loaded');
-        img.onerror = () => img.classList.add('loaded');
+        // Hide entire card if the image fails to load (ghost/missing data cleanup)
+        img.onerror = () => { entry.target.style.display = 'none'; };
       }
       observer.unobserve(entry.target);
     });
@@ -1055,6 +1078,32 @@ document.getElementById('paywall-dismiss').addEventListener('click', () => {
 paywallEl.addEventListener('click', e => {
   if (e.target === paywallEl) paywallEl.classList.remove('active');
 });
+
+/* ── Auto-hide header on scroll ─────────────────────────────────────── */
+(function() {
+  const hdr = document.getElementById('header');
+  let lastY = 0;
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      // Hide when scrolling down more than 8px and past the header height
+      if (delta > 8 && y > 80) {
+        hdr.classList.add('header-hidden');
+      }
+      // Show when scrolling up more than 4px
+      else if (delta < -4) {
+        hdr.classList.remove('header-hidden');
+      }
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+})();
 
 /* ── Init ─────────────────────────────────────────────────────────────── */
 (async () => {
