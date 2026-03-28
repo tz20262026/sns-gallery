@@ -110,6 +110,65 @@ app.get('/api/images', (req, res) => {
   res.json({ images, total, page: pageNum, limit: limitNum, pages });
 });
 
+// ─── API: Admin – delete images ───────────────────────────────────────────────
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'sada';
+
+app.post('/api/admin/delete', (req, res) => {
+  const { password, filenames } = req.body;
+  if (!password || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'パスワードが違います' });
+  }
+  if (!Array.isArray(filenames) || filenames.length === 0) {
+    return res.status(400).json({ error: 'filenamesが空です' });
+  }
+
+  const toDelete = new Set(filenames);
+  const before = IMAGES.length;
+
+  // Remove from in-memory array
+  IMAGES = IMAGES.filter(img => !toDelete.has(img.filename));
+  const deleted = before - IMAGES.length;
+
+  // Rebuild category index
+  Object.keys(CATEGORY_COUNTS).forEach(k => delete CATEGORY_COUNTS[k]);
+  IMAGES.forEach(img => {
+    const cat = img.category || 'backgrounds';
+    CATEGORY_COUNTS[cat] = (CATEGORY_COUNTS[cat] || 0) + 1;
+  });
+
+  // Persist to labeled_images.json on disk
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+    const all  = JSON.parse(raw);
+    const cleaned = all.filter(img => !toDelete.has(img.filename));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(cleaned, null, 2), 'utf-8');
+    console.log(`🗑️  Admin deleted ${deleted} images. Remaining: ${IMAGES.length}`);
+  } catch (e) {
+    console.error('Failed to update labeled_images.json:', e.message);
+  }
+
+  res.json({ deleted, remaining: IMAGES.length });
+});
+
+// ─── API: Admin – list images (all, for admin grid) ───────────────────────────
+app.get('/api/admin/images', (req, res) => {
+  const { password, category = 'all', page = '1', limit = '60' } = req.query;
+  if (!password || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'パスワードが違います' });
+  }
+  const pageNum  = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.min(120, parseInt(limit) || 60);
+  let filtered = category === 'all' ? IMAGES : IMAGES.filter(i => i.category === category);
+  const total  = filtered.length;
+  const slice  = filtered.slice((pageNum - 1) * limitNum, pageNum * limitNum);
+  const images = slice.map(img => ({
+    filename: img.filename,
+    path:     normalizePath(img.src || img.filepath || ''),
+    category: img.category || 'backgrounds'
+  }));
+  res.json({ images, total, page: pageNum, pages: Math.ceil(total / limitNum) });
+});
+
 // ─── API: Categories ──────────────────────────────────────────────────────────
 app.get('/api/categories', (req, res) => {
   const cats = Object.entries(CATEGORY_COUNTS)

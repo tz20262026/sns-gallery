@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理画面 – SNS Gallery</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a; --surf: #141414; --surf2: #1e1e1e;
+  --border: #282828; --accent: #e8c97a; --text: #f0f0f0;
+  --muted: #666; --danger: #e05555; --radius: 8px;
+}
+body { background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh; }
+
+/* ── Login ── */
+#login-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 20px;
+}
+.login-box {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 14px; padding: 36px 28px; width: 100%; max-width: 360px;
+  text-align: center;
+}
+.login-box h1 { font-size: 20px; margin-bottom: 6px; color: var(--accent); }
+.login-box p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+#pw-input {
+  width: 100%; background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; color: var(--text);
+  font-size: 16px; outline: none; margin-bottom: 12px;
+  transition: border-color .2s;
+}
+#pw-input:focus { border-color: var(--accent); }
+#login-btn {
+  width: 100%; padding: 12px; background: var(--accent);
+  border: none; border-radius: 8px; color: #111;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+#login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+/* ── Admin UI ── */
+#admin-ui { display: none; }
+
+/* ── Header ── */
+#admin-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,.97); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+}
+.admin-header-row {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 1400px; margin: 0 auto;
+  flex-wrap: wrap;
+}
+.admin-title { font-size: 16px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+#select-count { font-size: 13px; color: var(--muted); flex: 1; }
+
+#delete-btn {
+  background: var(--danger); border: none; border-radius: 8px;
+  color: #fff; font-size: 13px; font-weight: 700;
+  padding: 9px 18px; cursor: pointer; display: none;
+  transition: opacity .15s;
+}
+#delete-btn:hover { opacity: .85; }
+#delete-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+#select-all-btn, #deselect-btn {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 8px;
+  font-size: 12px; padding: 8px 12px; cursor: pointer;
+  white-space: nowrap;
+}
+#select-all-btn:hover, #deselect-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Category filter ── */
+#cat-bar {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; gap: 6px; padding: 8px 16px 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+#cat-bar::-webkit-scrollbar { display: none; }
+.cat-chip {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 20px;
+  font-size: 12px; padding: 5px 12px; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+  transition: all .15s;
+}
+.cat-chip.active { background: var(--accent); border-color: var(--accent); color: #111; font-weight: 700; }
+
+/* ── Stats ── */
+#admin-stats {
+  text-align: center; font-size: 12px; color: var(--muted);
+  padding: 6px 0 4px;
+}
+#admin-stats b { color: var(--accent); }
+
+/* ── Grid ── */
+#admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px; padding: 4px;
+  max-width: 1400px; margin: 0 auto;
+}
+@media (max-width: 480px) {
+  #admin-grid { grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; }
+}
+
+.admin-card {
+  position: relative; cursor: pointer;
+  border-radius: 6px; overflow: hidden;
+  background: var(--surf2); aspect-ratio: 1;
+  border: 2px solid transparent;
+  transition: border-color .15s;
+}
+.admin-card.selected { border-color: var(--danger); }
+.admin-card.selected::after {
+  content: '✓';
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px;
+  background: var(--danger); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700;
+  line-height: 22px; text-align: center;
+}
+.admin-card img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block; opacity: 0; transition: opacity .3s;
+}
+.admin-card img.loaded { opacity: 1; }
+.card-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 100%);
+  padding: 18px 5px 5px;
+  font-size: 9px; color: rgba(255,255,255,.7);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* ── Load more ── */
+#load-more-wrap { text-align: center; padding: 20px; }
+#load-more-btn {
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 28px; border-radius: 20px;
+  font-size: 13px; cursor: pointer; display: none;
+}
+#load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Spinner ── */
+#admin-spinner { display: none; text-align: center; padding: 30px; color: var(--muted); }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,.1);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .7s linear infinite; margin: 0 auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--surf); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; opacity: 0; transition: opacity .3s;
+  pointer-events: none; z-index: 3000; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.6);
+}
+#toast.active { opacity: 1; }
+#toast.ok  { border-color: #4a8; }
+#toast.err { border-color: #f44; }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🔐 管理画面</h1>
+    <p>SNS Gallery Admin</p>
+    <input type="password" id="pw-input" placeholder="パスワード" autocomplete="current-password">
+    <button id="login-btn">ログイン</button>
+    <div id="login-err">パスワードが違います</div>
+  </div>
+</div>
+
+<!-- ── Admin UI ── -->
+<div id="admin-ui">
+  <div id="admin-header">
+    <div class="admin-header-row">
+      <span class="admin-title">🗑️ 管理画面</span>
+      <span id="select-count">画像を読み込み中...</span>
+      <button id="select-all-btn">全選択</button>
+      <button id="deselect-btn" style="display:none">解除</button>
+      <button id="delete-btn">削除する</button>
+    </div>
+    <div id="cat-bar"></div>
+  </div>
+
+  <div id="admin-stats"></div>
+  <div id="admin-grid"></div>
+  <div id="admin-spinner"><div class="spinner"></div></div>
+  <div id="load-more-wrap"><button id="load-more-btn">もっと読み込む</button></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let pw = '';
+let selectedFiles = new Set();
+let currentCat = 'all';
+let currentPage = 1;
+let totalPages  = 1;
+let totalCount  = 0;
+let isLoading   = false;
+let allImages   = []; // accumulated for this session
+
+/* ── Toast ── */
+function toast(msg, type, ms) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'active ' + (type || '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('active'), ms || 3000);
+}
+
+/* ── Login ── */
+function doLogin() {
+  const val = document.getElementById('pw-input').value.trim();
+  if (!val) return;
+  pw = val;
+  // Validate by calling the API
+  fetch(`/api/admin/images?password=${encodeURIComponent(pw)}&limit=1`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        document.getElementById('login-err').style.display = 'block';
+        pw = '';
+      } else {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-ui').style.display = 'block';
+        initAdmin();
+      }
+    })
+    .catch(() => { document.getElementById('login-err').style.display = 'block'; pw = ''; });
+}
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* ── Init ── */
+async function initAdmin() {
+  await loadCats();
+  await loadImages(true);
+}
+
+/* ── Categories ── */
+async function loadCats() {
+  const data = await fetch('/api/categories').then(r => r.json());
+  const bar = document.getElementById('cat-bar');
+  bar.innerHTML = '';
+  data.forEach(({ category, count }) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-chip' + (category === 'all' ? ' active' : '');
+    btn.textContent = `${category} (${count})`;
+    btn.addEventListener('click', () => {
+      currentCat = category;
+      document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedFiles.clear();
+      allImages = [];
+      updateHeader();
+      loadImages(true);
+    });
+    bar.appendChild(btn);
+  });
+}
+
+/* ── Load images ── */
+async function loadImages(reset = false) {
+  if (isLoading) return;
+  if (!reset && currentPage > totalPages) return;
+  isLoading = true;
+  if (reset) { currentPage = 1; allImages = []; document.getElementById('admin-grid').innerHTML = ''; }
+
+  document.getElementById('admin-spinner').style.display = 'block';
+  document.getElementById('load-more-btn').style.display = 'none';
+
+  const params = new URLSearchParams({
+    password: pw, category: currentCat, page: currentPage, limit: 60
+  });
+  const data = await fetch(`/api/admin/images?${params}`).then(r => r.json());
+  totalPages = data.pages || 1;
+  totalCount = data.total || 0;
+  currentPage = data.page + 1;
+
+  renderCards(data.images || []);
+  updateStats();
+
+  document.getElementById('admin-spinner').style.display = 'none';
+  if (currentPage <= totalPages) document.getElementById('load-more-btn').style.display = 'inline-block';
+  isLoading = false;
+}
+
+/* ── Render cards ── */
+function renderCards(images) {
+  const grid = document.getElementById('admin-grid');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target.querySelector('img[data-src]');
+      if (img) { img.src = img.dataset.src; delete img.dataset.src;
+        img.onload = () => img.classList.add('loaded');
+        img.onerror = () => img.classList.add('loaded'); }
+      observer.unobserve(e.target);
+    });
+  }, { rootMargin: '300px' });
+
+  images.forEach(imgData => {
+    allImages.push(imgData);
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.dataset.filename = imgData.filename;
+    if (selectedFiles.has(imgData.filename)) card.classList.add('selected');
+
+    const img = document.createElement('img');
+    img.dataset.src = imgData.path;
+    img.alt = imgData.filename;
+
+    const label = document.createElement('div');
+    label.className = 'card-label';
+    label.textContent = imgData.filename;
+
+    card.appendChild(img);
+    card.appendChild(label);
+    card.addEventListener('click', () => toggleSelect(card, imgData.filename));
+
+    grid.appendChild(card);
+    observer.observe(card);
+  });
+}
+
+/* ── Select / Deselect ── */
+function toggleSelect(card, filename) {
+  if (selectedFiles.has(filename)) {
+    selectedFiles.delete(filename);
+    card.classList.remove('selected');
+  } else {
+    selectedFiles.add(filename);
+    card.classList.add('selected');
+  }
+  updateHeader();
+}
+
+function updateHeader() {
+  const n = selectedFiles.size;
+  document.getElementById('select-count').textContent =
+    n > 0 ? `${n}枚 選択中` : `タップして選択`;
+  document.getElementById('delete-btn').style.display = n > 0 ? 'block' : 'none';
+  document.getElementById('deselect-btn').style.display = n > 0 ? 'block' : 'none';
+}
+
+function updateStats() {
+  document.getElementById('admin-stats').innerHTML =
+    `合計 <b>${totalCount.toLocaleString()}</b>枚`;
+}
+
+document.getElementById('select-all-btn').addEventListener('click', () => {
+  allImages.forEach(img => selectedFiles.add(img.filename));
+  document.querySelectorAll('.admin-card').forEach(c => c.classList.add('selected'));
+  updateHeader();
+});
+
+document.getElementById('deselect-btn').addEventListener('click', () => {
+  selectedFiles.clear();
+  document.querySelectorAll('.admin-card').forEach(c => c.classList.remove('selected'));
+  updateHeader();
+});
+
+/* ── Delete ── */
+document.getElementById('delete-btn').addEventListener('click', async () => {
+  const n = selectedFiles.size;
+  if (n === 0) return;
+  if (!confirm(`${n}枚の画像を削除しますか？\n（この操作は取り消せません）`)) return;
+
+  const btn = document.getElementById('delete-btn');
+  btn.disabled = true;
+  btn.textContent = '削除中...';
+
+  try {
+    const resp = await fetch('/api/admin/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw, filenames: [...selectedFiles] })
+    });
+    const data = await resp.json();
+    if (data.error) { toast('❌ ' + data.error, 'err'); }
+    else {
+      toast(`🗑️ ${data.deleted}枚削除しました（残り${data.remaining}枚）`, 'ok', 4000);
+      // Remove cards from grid
+      selectedFiles.forEach(fn => {
+        const card = document.querySelector(`.admin-card[data-filename="${CSS.escape(fn)}"]`);
+        if (card) card.remove();
+      });
+      allImages = allImages.filter(img => !selectedFiles.has(img.filename));
+      totalCount = data.remaining;
+      selectedFiles.clear();
+      updateHeader();
+      updateStats();
+    }
+  } catch (e) {
+    toast('❌ 通信エラー', 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '削除する';
+});
+
+document.getElementById('load-more-btn').addEventListener('click', () => loadImages(false));
+
+// Infinite scroll
+new IntersectionObserver(([e]) => {
+  if (e.isIntersecting && !isLoading && currentPage <= totalPages) loadImages(false);
+}, { threshold: 0.5 }).observe(document.getElementById('load-more-wrap'));
+</script>
+</body>
+</html>
