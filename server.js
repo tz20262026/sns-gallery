@@ -303,6 +303,18 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req,
   res.json({ received: true });
 });
 
+// ─── API: Admin – export labeled_images.json ─────────────────────────────────
+app.get('/api/admin/export', (req, res) => {
+  const { password } = req.query;
+  if (!password || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'パスワードが違います' });
+  }
+  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="labeled_images.json"');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(raw);
+});
+
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
