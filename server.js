@@ -18,8 +18,8 @@ let IMAGES = [];
 
 try {
   const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-  IMAGES = JSON.parse(raw);
-  console.log(`✅ Loaded ${IMAGES.length} images`);
+  IMAGES = JSON.parse(raw).filter(img => img.category !== 'logos');
+  console.log(`✅ Loaded ${IMAGES.length} images (logos excluded)`);
 } catch (e) {
   console.error('❌ Could not load labeled_images.json:', e.message);
   process.exit(1);
