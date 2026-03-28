@@ -85,26 +85,17 @@
       state.downloaded = data.downloaded || state.downloaded + 1;
       saveState(state);
 
-      // Trigger actual download
-      // imagePath may be a full R2 URL (https://...) – never prepend '/'
-      const dlUrl = imagePath.startsWith('http') ? imagePath : '/' + imagePath;
-      const dlName = filename || imagePath.split('/').pop();
-      try {
-        // fetch → blob ensures the "download" attribute works on mobile / cross-origin
-        const r = await fetch(dlUrl);
-        const blob = await r.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href     = blobUrl;
-        a.download = dlName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-      } catch (_) {
-        // Fallback: open in new tab (iOS Safari, CORS blocked, etc.)
-        window.open(dlUrl, '_blank');
-      }
+      // Trigger actual download via same-origin proxy (works on iOS Safari)
+      // Cross-origin <a download> is blocked on mobile; /api/proxy-download returns
+      // Content-Disposition: attachment from the same origin, bypassing the restriction.
+      const dlName = filename || imagePath.split('/').pop().split('?')[0];
+      const proxyUrl = '/api/proxy-download?path=' + encodeURIComponent(imagePath);
+      const a = document.createElement('a');
+      a.href     = proxyUrl;
+      a.download = dlName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
       // Show remaining count toast
       if (!isSubscribed()) {

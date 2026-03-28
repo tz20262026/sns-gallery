@@ -129,6 +129,39 @@ app.get('/api/image-labels', (req, res) => {
   res.json(img.labels || {});
 });
 
+// ─── API: Proxy-download (streams R2 file as same-origin attachment) ─────────
+// Required for iOS Safari: cross-origin <a download> is blocked; same-origin works.
+app.get('/api/proxy-download', async (req, res) => {
+  const imagePath = req.query.path || '';
+
+  // Build full R2 URL, accept both full URLs and relative paths
+  const fullUrl = imagePath.startsWith('http')
+    ? imagePath
+    : `${R2_BASE_URL}/${imagePath.replace(/^\/+/, '')}`;
+
+  // Security: only proxy requests to our own R2 bucket
+  if (!fullUrl.startsWith(R2_BASE_URL)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  try {
+    const r = await fetch(fullUrl);
+    if (!r.ok) return res.status(r.status).json({ error: 'Upstream error' });
+
+    const filename = fullUrl.split('/').pop().split('?')[0] || 'image.jpg';
+    res.setHeader('Content-Type', r.headers.get('content-type') || 'image/jpeg');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'no-store');
+
+    // Stream response body to client (Node 18+ fetch returns a Web ReadableStream)
+    const { Readable } = require('stream');
+    Readable.fromWeb(r.body).pipe(res);
+  } catch (err) {
+    console.error('proxy-download error:', err.message);
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
 // ─── API: Download (checks limits) ───────────────────────────────────────────
 app.post('/api/download', (req, res) => {
   const { imagePath, sessionId } = req.body;
